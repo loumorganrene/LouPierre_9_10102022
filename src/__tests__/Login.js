@@ -7,6 +7,19 @@ import Login from "../containers/Login.js";
 import { ROUTES } from "../constants/routes";
 import { fireEvent, screen } from "@testing-library/dom";
 
+const original = console.error
+
+beforeEach(() => {
+  console.error = jest.fn()
+  console.error('you cant see me')
+})
+
+afterEach(() => {
+  console.error('you cant see me')
+  console.error = original
+  // console.error('now you can')
+})
+
 describe("Given that I am a user on login page", () => {
   describe("When I do not fill fields and I click on employee button Login In", () => {
     test("Then It should renders Login page", () => {
