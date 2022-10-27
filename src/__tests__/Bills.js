@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-
+ import $ from 'jquery';
  import "@testing-library/jest-dom";
  import { screen, waitFor } from "@testing-library/dom";
  import userEvent from "@testing-library/user-event";
@@ -12,7 +12,7 @@
  import { ROUTES_PATH } from "../constants/routes.js";
  import { localStorageMock } from "../__mocks__/localStorage.js";
  import router from "../app/Router.js";
- 
+
  jest.mock("../app/store", () => mockStore);
 
 
@@ -29,6 +29,7 @@ describe("Given I am connected as an employee", () => {
 
 	describe("When I am on Bills Page", () => {
 		beforeEach(() => {
+		$.fn.modal = jest.fn();
 		const root = document.createElement("div")
 		root.setAttribute("id", "root")
 		document.body.append(root)
@@ -51,29 +52,43 @@ describe("Given I am connected as an employee", () => {
 		})
 
 			describe('When I click on a bill eye icon', () => {
-				test('Then a modal should open and a bill proof img should appear', async () => {
+				test('Then it should open a modal and it should display an image', async () => {
 					const store = null
 					const billsPage = new Bills({
 					document, onNavigate, store, localStorage: window.localStorage
 					})
-					const eye = screen.getAllByTestId('icon-eye')
-					const modale = screen.getByTestId('modaleFile')
-					const handleClickIconEye = jest
-						.spyOn(billsPage, 'handleClickIconEye')
-						.mockImplementation(() => {modale.classList.add('show')})
-			
-					userEvent.click(eye[0])
-						
-					expect(handleClickIconEye).toHaveBeenCalled()
-					expect($('#modaleFile').modal('show')).toBeTruthy()
-					// expect(modale).toHaveClass('show')
+					await waitFor(() => screen.getAllByTestId('icon-eye')[0])
+					const eye = screen.getAllByTestId('icon-eye')[0]
+					const modal = screen.getByTestId('modaleFile')
+					const modaleFileBody = screen.getByTestId('modaleFileBody')
 					const proofContainer = screen.getByTestId('bill-proof-container')
 					const proofImg = screen.getByTestId('bill-proof-img')
-					expect(proofContainer).toContainElement(proofImg)
+					const handleClickIconEye = jest
+						.spyOn(billsPage, 'handleClickIconEye')
+						.mockImplementation(()=>{
+							$.fn.modal = jest.fn()
+							const billUrl = eye.getAttribute("data-bill-url")
+							// const imgWidth = Math.floor($(modal).width() * 0.5)
+							// $(modal).find(modaleFileBody).html(`
+							// <div style='text-align: center;' class="bill-proof-container" data-testid="bill-proof-container">
+							// <img width=${imgWidth} src=${billUrl} alt="Bill" data-testid="bill-proof-img" />
+							// </div>`)
+							$(modal).modal('show')
+						})
+					userEvent.click(eye)
+						
+					expect(handleClickIconEye).toBeCalled()
+					// expect(modal).toHaveClass('show')
+
+
+					expect(proofContainer).toBeVisible()
+					expect(proofImg).not.toHaveAttribute('src', '')
 				})
 			})
     })
 })
+
+
 
 /*
 class Api {
