@@ -12,16 +12,21 @@ export default class NewBill {
     file.addEventListener("change", this.handleChangeFile)
     this.fileUrl = null
     this.fileName = null
-    this.fileNameExtension = /[a-zA-Z0-9\x21-\x7E]+\.|(png)|(jpeg)|(jpg)/g
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
   handleChangeFile = e => {
-    // to do: if fileName match file extension list
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
+    const fileExtension = /[a-zA-Z0-9\x21-\x7E]+\.|(png)|(jpeg)|(jpg)/g
+    // to do: if fileName match file extension list
+    if (!fileName.toLowerCase().match(fileExtension)) {
+      this.document.querySelector(`input[data-testid="file"]`).value = null;
+      window.alert("Wrong file format. Accepted formats: .jpg, .jpeg, .png");
+      return
+    }
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
