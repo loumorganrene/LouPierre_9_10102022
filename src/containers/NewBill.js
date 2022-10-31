@@ -8,8 +8,8 @@ export default class NewBill {
     this.store = store
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
     formNewBill.addEventListener("submit", this.handleSubmit)
-    const file = this.document.querySelector(`input[data-testid="file"]`)
-    file.addEventListener("change", this.handleChangeFile)
+    this.file = this.document.querySelector(`input[data-testid="file"]`)
+    this.file.addEventListener("change", this.handleChangeFile)
     this.fileUrl = null
     this.fileName = null
     this.billId = null
@@ -17,20 +17,26 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+    const file = this.file.files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
-    const fileExtension = /[a-zA-Z0-9\x21-\x7E]+\.|(png)|(jpeg)|(jpg)/g
-    // to do: if fileName match file extension list
-    if (!fileName.toLowerCase().match(fileExtension)) {
-      this.document.querySelector(`input[data-testid="file"]`).value = null;
-      window.alert("Wrong file format. Accepted formats: .jpg, .jpeg, .png");
-      return
-    }
+    // const fileExtension = /[a-zA-Z0-9\x21-\x7E]+\.|(png)|(jpeg)|(jpg)/g
+    const fileExtension = /(.jpg|.jpeg|.png)$/i
+    console.log({filePath})
+    console.log(fileName)
+    console.log(fileExtension)
+    console.log(file)
+
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
     formData.append('email', email)
+        // to do: if fileName match file extension list
+        if (!fileName.match(fileExtension)) {
+          document.querySelector(`input[data-testid="file"]`).value = null
+          alert("Wrong file format. Accepted formats: .jpg, .jpeg, .png")
+          return
+        }
 
     this.store
       .bills()

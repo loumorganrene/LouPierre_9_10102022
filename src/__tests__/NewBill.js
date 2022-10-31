@@ -48,15 +48,23 @@ describe("Given I am connected as an employee", () => {
         const newBillPage = new NewBill({
           document, onNavigate, store, localStorage: window.localStorage
         })
-        const errorMessage = jest.spyOn(window, 'alert').mockImplementation(() => {})
+        jest.spyOn(window, 'alert').mockImplementation(() => {})
         const input = screen.getByTestId("file")
-        const handleChangeFile = jest.fn(newBillPage.handleChangeFile)
-        input.addEventListener("change", (e) => handleChangeFile(e))
         const file = new File(['hello'], 'hello.jpg', {type: 'image/jpg'})
-        userEvent.upload(input, file)
+        //define the input file value
+        Object.defineProperty(input, 'files', {
+          value: [file]
+        })
+        //mock the change event of upload file
+        const e = {
+          preventDefault: jest.fn(),
+          target: {
+            value: 'C:\\fake\\path\\to\\file.jpg'
+          }
+        }
+        newBillPage.handleChangeFile(e)
 
-        expect(handleChangeFile).toHaveBeenCalled()
-        expect(errorMessage).not.toHaveBeenCalled()
+        expect(window.alert).not.toBeCalled()
         expect(input.files[0]).toStrictEqual(file)
       })
 
@@ -68,15 +76,26 @@ describe("Given I am connected as an employee", () => {
         const newBillPage = new NewBill({
           document, onNavigate, store, localStorage: window.localStorage
         })
-        const errorMessage = jest.spyOn(window, 'alert').mockImplementation(() => {})
+        jest.spyOn(window, 'alert').mockImplementation(() => {})
         const input = screen.getByTestId("file")
-        const handleChangeFile = jest.fn(newBillPage.handleChangeFile)
-        input.addEventListener('change', (e) => handleChangeFile(e))
+        // const handleChangeFile = jest.fn(newBillPage.handleChangeFile)
+        // input.addEventListener('change', (e) => handleChangeFile(e))
         const file = new File(['hello'], 'hello.gif', {type: 'image/gif'})
-        userEvent.upload(input, file)
+        // userEvent.upload(input, file)
+                //define the input file value
+        Object.defineProperty(input, 'files', {
+          value: [file]
+        })
+        //mock the change event of upload file
+        const e = {
+          preventDefault: jest.fn(),
+          target: {
+            value: 'C:\\fake\\path\\to\\file.gif'
+          }
+        }
+        newBillPage.handleChangeFile(e)
 
-        expect(handleChangeFile).toHaveBeenCalled()
-        expect(errorMessage).toHaveBeenCalled()
+        expect(window.alert).toBeCalled()
       })
     })
   })
