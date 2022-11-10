@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-
+ import $ from 'jquery';
+ import "@testing-library/jest-dom";
 import {fireEvent, screen, waitFor} from "@testing-library/dom"
 import userEvent from '@testing-library/user-event'
 import DashboardFormUI from "../views/DashboardFormUI.js"
@@ -213,6 +214,28 @@ describe('Given I am connected as Admin, and I am on Dashboard page, and I click
 })
 
 describe('Given I am connected as Admin and I am on Dashboard page and I clicked on a bill', () => {
+  test('Then bill proof name should not be null', () => {
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+    window.localStorage.setItem('user', JSON.stringify({
+      type: 'Admin'
+    }))
+    document.body.innerHTML = DashboardFormUI(bills[0])
+    const onNavigate = (pathname) => {
+      document.body.innerHTML = ROUTES({ pathname })
+    }
+    const store = null
+    const dashboard = new Dashboard({
+      document, onNavigate, store, bills, localStorage: window.localStorage
+    })
+    const fileName = screen.getByTestId('file-name-admin')
+    const eye = screen.getByTestId('icon-eye-d')
+
+    expect(fileName).not.toHaveTextContent('null')
+    expect(fileName).not.toHaveTextContent('undefined')
+    expect(fileName).not.toHaveTextContent('')
+    expect(eye).not.toHaveAttribute('data-bill-url', null)
+  })
+
   describe('When I click on the icon eye', () => {
     test('A modal should open', () => {
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
@@ -237,6 +260,27 @@ describe('Given I am connected as Admin and I am on Dashboard page and I clicked
       const modale = screen.getByTestId('modaleFileAdmin')
       expect(modale).toBeTruthy()
     })
+
+    test('Then it should display an image', () => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Admin'
+      }))
+      document.body.innerHTML = DashboardFormUI(bills[0])
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      const store = null
+      const dashboard = new Dashboard({
+        document, onNavigate, store, bills, localStorage: window.localStorage
+      })
+      const eye = screen.getByTestId('icon-eye-d')
+      const billUrl = $(eye).attr("data-bill-url")
+      const imgWidth = Math.floor($('#modaleFileAdmin1').width() * 0.8)
+
+      expect($.fn.html).not.toHaveBeenCalledWith(`<div style='text-align: center;'><img width=${imgWidth} src="" alt="Bill"/></div>`)
+      expect($.fn.html).toHaveBeenCalledWith(`<div style='text-align: center;'><img width=${imgWidth} src=${billUrl} alt="Bill"/></div>`)
+    })
   })
 })
 
@@ -257,6 +301,7 @@ describe("Given I am a user connected as Admin", () => {
       expect(contentRefused).toBeTruthy()
       expect(screen.getByTestId("big-billed-icon")).toBeTruthy()
     })
+    
   describe("When an error occurs on API", () => {
     beforeEach(() => {
       jest.spyOn(mockStore, "bills")
