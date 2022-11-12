@@ -41,7 +41,7 @@ describe("Given I am connected as an employee", () => {
 		test("Then bill icon in vertical layout should be highlighted", async () => {
 			await waitFor(() => screen.getByTestId('icon-window'))
 			const windowIcon = screen.getByTestId('icon-window')
-			expect(windowIcon).toHaveClass("active-icon")
+			expect(windowIcon).toHaveClass('active-icon')
 		})
 
 		test("Then bills should be ordered from earliest to latest", () => {
@@ -49,6 +49,25 @@ describe("Given I am connected as an employee", () => {
 			const antiChrono = (a, b) => ((a < b) ? 1 : -1)
 			const datesSorted = [...dates].sort(antiChrono)
 			expect(dates).toEqual(datesSorted)
+		})
+
+		test("Then NewBill button should be visible", async () => {
+			await waitFor(() => screen.getByTestId('btn-new-bill'))
+			const newBillBtn = screen.getByTestId('btn-new-bill')
+			expect(newBillBtn).toHaveTextContent('Nouvelle')
+		})
+
+		describe('When I click on newBills button', () => {
+			test('Then it should render the newBill form page', () => {
+				const store = null;
+				const onNavigate = jest.fn()
+				const billsPage = new Bills({
+					document, onNavigate, store, localStorage: window.localStorage
+				})
+				billsPage.handleClickNewBill()
+
+				expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH.NewBill)
+			})
 		})
 
 		describe('When I click on a bill eye icon', () => {
@@ -63,7 +82,7 @@ describe("Given I am connected as an employee", () => {
 				userEvent.click(eye)
 
 				expect(handleClickIconEye).toBeCalled()
-				expect($.fn.modal).toHaveBeenCalledWith("show")
+				expect($.fn.modal).toHaveBeenCalledWith('show')
 			})
 
 			test('Then it should display an image', async () => {
@@ -80,3 +99,72 @@ describe("Given I am connected as an employee", () => {
 		})
 	})
 })
+
+// test d'intégration GET
+describe("Given I am a user connected as Employee", () => {
+	describe("When I navigate to Bills page", () => {
+	  test("fetches bills from mock API GET", async () => {
+		localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
+		const root = document.createElement("div")
+		root.setAttribute("id", "root")
+		document.body.append(root)
+		router()
+		window.onNavigate(ROUTES_PATH.Bills)
+		await waitFor(() => screen.getByText("Mes notes de frais"))
+		expect(screen.getByText("Mes notes de frais")).toBeTruthy()
+		const contentType  = await waitFor(() => screen.getAllByText("Type")[0])
+		expect(contentType).toBeTruthy()
+		const contentName  = await waitFor(() => screen.getAllByText("Nom")[0])
+		expect(contentName).toBeTruthy()
+		expect(screen.getAllByTestId("icon-eye")[0]).toBeTruthy()
+	  })
+	  
+	describe("When an error occurs on API", () => {
+	  beforeEach(() => {
+		jest.spyOn(mockStore, "bills")
+		Object.defineProperty(
+			window,
+			'localStorage',
+			{ value: localStorageMock }
+		)
+		window.localStorage.setItem('user', JSON.stringify({
+		  type: 'Employee',
+		  email: "a@a"
+		}))
+		const root = document.createElement("div")
+		root.setAttribute("id", "root")
+		document.body.appendChild(root)
+		router()
+	  })
+	  test("fetches bills from an API and fails with 404 message error", async () => {
+  
+		mockStore.bills.mockImplementationOnce(() => {
+		  return {
+			list : () =>  {
+			  return Promise.reject(new Error("Erreur 404"))
+			}
+		  }})
+		window.onNavigate(ROUTES_PATH.Bills)
+		await new Promise(process.nextTick);
+		const message = await screen.getByText(/Erreur 404/)
+		expect(message).toBeTruthy()
+	  })
+  
+	  test("fetches messages from an API and fails with 500 message error", async () => {
+  
+		mockStore.bills.mockImplementationOnce(() => {
+		  return {
+			list : () =>  {
+			  return Promise.reject(new Error("Erreur 500"))
+			}
+		  }})
+  
+		window.onNavigate(ROUTES_PATH.Bills)
+		await new Promise(process.nextTick);
+		const message = await screen.getByText(/Erreur 500/)
+		expect(message).toBeTruthy()
+	  })
+	})
+  
+	})
+  })
