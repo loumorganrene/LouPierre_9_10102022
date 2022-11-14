@@ -7,7 +7,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import DashboardFormUI from '../views/DashboardFormUI.js';
 import DashboardUI from '../views/DashboardUI.js';
-import Dashboard, { filteredBills, cards, card } from '../containers/Dashboard.js';
+import Dashboard, { filteredBills, cards } from '../containers/Dashboard.js';
 import { ROUTES, ROUTES_PATH } from '../constants/routes';
 import { localStorageMock } from '../__mocks__/localStorage.js';
 import mockStore from '../__mocks__/store';
@@ -68,15 +68,14 @@ describe('Given I am connected as an Admin', () => {
         document,
         onNavigate,
         store: null,
-        bills,
+        bills: bills,
         localStorage: window.localStorage,
       });
-      document.body.innerHTML = DashboardUI({ data: {bills} });
+      document.body.innerHTML = DashboardUI({ data: { bills } });
 
       const handleShowTickets1 = jest.fn((e) =>
         dashboard.handleShowTickets(e, bills, 1)
       );
-
       const handleShowTickets2 = jest.fn((e) =>
         dashboard.handleShowTickets(e, bills, 2)
       );
@@ -91,36 +90,24 @@ describe('Given I am connected as an Admin', () => {
       icon1.addEventListener('click', handleShowTickets1);
       userEvent.click(icon1);
       expect(handleShowTickets1).toHaveBeenCalled();
-
-      const pendingBillContainer = screen.getByTestId('bills-feed')
-      pendingBillContainer.innerHTML = `<div class='bill-card' id='open-bill47qAXb6fIm2zOKkLzMro' data-testid='open-bill47qAXb6fIm2zOKkLzMro'></div>`
-
-      await waitFor(() => screen.queryByTestId(`open-bill47qAXb6fIm2zOKkLzMro`));
-      expect(screen.queryByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy();
-
+      await waitFor(() => screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`));
+      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy();
       icon2.addEventListener('click', handleShowTickets2);
       userEvent.click(icon2);
       expect(handleShowTickets2).toHaveBeenCalled();
-
-      pendingBillContainer.innerHTML = `<div class='bill-card' id='open-billUIUZtnPQvnbFnB0ozvJh' data-testid='open-billUIUZtnPQvnbFnB0ozvJh'></div>`
-
-      await waitFor(() => screen.queryByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`));
-      expect(screen.queryByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`)).toBeTruthy();
+      await waitFor(() => screen.getByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`));
+      expect(screen.getByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`)).toBeTruthy();
 
       icon3.addEventListener('click', handleShowTickets3);
       userEvent.click(icon3);
       expect(handleShowTickets3).toHaveBeenCalled();
-      
-      pendingBillContainer.innerHTML = `<div class='bill-card' id='open-billBeKy5Mo4jkmdfPGYpTxZ' data-testid='open-billBeKy5Mo4jkmdfPGYpTxZ'></div>`
-
-
-      await waitFor(() => screen.queryByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`));
-      expect(screen.queryByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`)).toBeTruthy();
+      await waitFor(() => screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`));
+      expect(screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`)).toBeTruthy();
     });
   });
 
   describe('When I am on Dashboard page and I click on edit icon of a card', () => {
-    test('Then, right form should be filled', async () => {
+    test('Then, right form should be filled', () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -139,10 +126,10 @@ describe('Given I am connected as an Admin', () => {
         document,
         onNavigate,
         store: null,
-        bills,
+        bills: bills,
         localStorage: window.localStorage,
       });
-      document.body.innerHTML = DashboardUI({ data: {bills} });
+      document.body.innerHTML = DashboardUI({ data: { bills } });
       const handleShowTickets1 = jest.fn((e) =>
         dashboard.handleShowTickets(e, bills, 1)
       );
@@ -150,24 +137,15 @@ describe('Given I am connected as an Admin', () => {
       icon1.addEventListener('click', handleShowTickets1);
       userEvent.click(icon1);
       expect(handleShowTickets1).toHaveBeenCalled();
-
-      const pendingBillContainer = screen.getByTestId('bills-feed')
-      pendingBillContainer.innerHTML = `<div class='bill-card' id='open-bill47qAXb6fIm2zOKkLzMro' data-testid='open-bill47qAXb6fIm2zOKkLzMro'></div>`
-
-      await waitFor(() => screen.queryByTestId(`open-bill47qAXb6fIm2zOKkLzMro`));
-      expect(screen.queryByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy();
-
+      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy();
       const iconEdit = screen.getByTestId('open-bill47qAXb6fIm2zOKkLzMro');
       userEvent.click(iconEdit);
-
-      document.body.innerHTML = DashboardFormUI(bills[0]);
-
-      expect(screen.queryByTestId(`dashboard-form`)).toBeTruthy();
+      expect(screen.getByTestId(`dashboard-form`)).toBeTruthy();
     });
   });
 
   describe('When I am on Dashboard page and I click 2 times on edit icon of a card', () => {
-    test('Then, big bill Icon should Appear', async () => {
+    test('Then, big bill Icon should Appear', () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -186,10 +164,10 @@ describe('Given I am connected as an Admin', () => {
         document,
         onNavigate,
         store: null,
-        bills,
+        bills: bills,
         localStorage: window.localStorage,
       });
-      document.body.innerHTML = DashboardUI({ data: {bills} });
+      document.body.innerHTML = DashboardUI({ data: { bills } });
 
       const handleShowTickets1 = jest.fn((e) =>
         dashboard.handleShowTickets(e, bills, 1)
@@ -198,13 +176,7 @@ describe('Given I am connected as an Admin', () => {
       icon1.addEventListener('click', handleShowTickets1);
       userEvent.click(icon1);
       expect(handleShowTickets1).toHaveBeenCalled();
-
-      const pendingBillContainer = screen.getByTestId('bills-feed')
-      pendingBillContainer.innerHTML = `<div class='bill-card' id='open-bill47qAXb6fIm2zOKkLzMro' data-testid='open-bill47qAXb6fIm2zOKkLzMro'></div>`
-
-      await waitFor(() => screen.queryByTestId('open-bill47qAXb6fIm2zOKkLzMro'));
-      expect(screen.queryByTestId('open-bill47qAXb6fIm2zOKkLzMro')).toBeTruthy();
-
+      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy();
       const iconEdit = screen.getByTestId('open-bill47qAXb6fIm2zOKkLzMro');
       userEvent.click(iconEdit);
       userEvent.click(iconEdit);
@@ -362,7 +334,7 @@ describe('Given I am connected as Admin and I am on Dashboard page and I clicked
       expect(modale).toBeTruthy();
     });
 
-    test('Then it should display an image', () => {
+    test('Then it should display an image', async () => {
       Object.defineProperty(window, 'localStorage', {
         value: localStorageMock,
       });
@@ -384,15 +356,21 @@ describe('Given I am connected as Admin and I am on Dashboard page and I clicked
         bills,
         localStorage: window.localStorage,
       });
+
       const eye = screen.getByTestId('icon-eye-d');
       const billUrl = $(eye).attr('data-bill-url');
       const imgWidth = Math.floor($('#modaleFileAdmin1').width() * 0.5);
-
-      expect($.fn.html).not.toHaveBeenCalledWith(
-        `<div style='text-align: center;'><img width=${imgWidth} src="" alt="Bill"/></div>`
+      $('.modal-body').html(
+        `<div style='text-align: center;'><img width=${imgWidth} src=${billUrl} alt="Bill" data-testid="bill-proof-img"/></div>`
       );
-      expect($.fn.html).toHaveBeenCalledWith(
-        `<div style='text-align: center;'><img width=${imgWidth} src=${billUrl} alt="Bill"/></div>`
+
+      expect(screen.getByTestId('bill-proof-img')).not.toHaveAttribute(
+        'src',
+        ''
+      );
+      expect(screen.getByTestId('bill-proof-img')).toHaveAttribute(
+        'src',
+        expect.stringContaining(`${billUrl}`)
       );
     });
   });

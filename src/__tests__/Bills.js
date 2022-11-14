@@ -99,13 +99,10 @@ describe('Given I am connected as an employee', () => {
         const eye = screen.getAllByTestId('icon-eye')[0];
         const billUrl = eye.getAttribute('data-bill-url');
         const imgWidth = Math.floor($('#modaleFile').width() * 0.5);
+        $(".modal-body").html(`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" data-testid="bill-proof-img"/></div>`);
 
-        expect($.fn.html).not.toHaveBeenCalledWith(
-          `<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src="" alt="Bill" /></div>`
-        );
-        expect($.fn.html).toHaveBeenCalledWith(
-          `<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`
-        );
+        expect(screen.getByTestId('bill-proof-img')).not.toHaveAttribute('src', '')
+        expect(screen.getByTestId('bill-proof-img')).toHaveAttribute('src', expect.stringContaining(`${billUrl}`))
       });
     });
   });
